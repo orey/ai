@@ -21,7 +21,7 @@ PUNCTUATION = [".",",",";",":","!","?","'",'"',"-","(",")","—"]
 #---------------------------------------------------------------- Semantic constants
 class Sem():
     Domain = "https://orey.github.io/ai/"
-    Token = URIRef(DOMAIN + "TOKEN")
+    Token = URIRef(DOMAIN + "Token")
     Sequence = URIRef(DOMAIN + "SEQUENCE")
     Rank = URIRef(DOMAIN + "RANK") # rank of sequence
 
