@@ -22,8 +22,9 @@ PUNCTUATION = [".",",",";",":","!","?","'",'"',"-","(",")","—"]
 class Sem():
     Domain = "https://orey.github.io/ai/"
     Token = URIRef(DOMAIN + "Token")
-    Sequence = URIRef(DOMAIN + "SEQUENCE")
-    Rank = URIRef(DOMAIN + "RANK") # rank of sequence
+    Sequence = URIRef(DOMAIN + "Sequence")
+    Rank = URIRef(DOMAIN + "Rank") # rank of sequence
+    
 
 #------------------------------------------------------------------SemDict
 class SemWordDict():
@@ -49,9 +50,12 @@ class SemWordDict():
         self.name = name
         self.graph = RDFStore(name)
         # initialize the types
-        self.graph.add((TOKEN, RDFS.subClassOf, RDFS.Class))
-        self.graph.add((SEQUENCE, RDFS.subClassOf, RDF.Seq)) # The _1, _2, etc. will be used
-        self.graph.add((RANK, RDFS.subPropertyOf, RDF.Property))
+        self.graph.add((Sem.Token, RDFS.subClassOf, RDFS.Class))
+        self.graph.add((Sem.Sequence, RDFS.subClassOf, RDF.Seq)) # The _1, _2, etc. will be used
+        self.graph.add((Sem.Rank, RDFS.subPropertyOf, RDF.Property))
+        self.graph.add((Sem.Rank, RDFS.domain, Sem.Sequence))
+        self.graph.add((Sem.Rank, RDFS.range, XSD.integer))
+        
         
 
     def add_words(self, words, verbose = False):
@@ -74,9 +78,11 @@ class SemWordDict():
                 self.dic[word] = [rep, 1]
                 self.count +=1
                 # adding the word in the graph
-                s = URIRef(DOMAIN + rep)
+                s = URIRef(Sem.Domain + rep)
                 if word in PUNCTUATION:
-                    self.graph.add((s, RDF.type, ))
+                    self.graph.add((s, RDF.type, Sem.Token))
+                    self.graph.add((s, RDF.value, word))
+                    # to be added, the number of instances could be added
         if verbose:
             print(self)
         return tokenized_words       
