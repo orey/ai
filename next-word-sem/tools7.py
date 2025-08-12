@@ -55,6 +55,8 @@ class RDFStore():
         return self.store
     def add(self, triple):
         self.store.add(triple)
+    def remove(self, triple):
+        self.store.remove(triple)
     def dump(self):
         myprint("Dumping store")
         tim = Timer()

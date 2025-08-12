@@ -20,12 +20,41 @@ PUNCTUATION = [".",",",";",":","!","?","'",'"',"-","(",")","—"]
 
 #---------------------------------------------------------------- Semantic constants
 class Sem():
+    # static members
     Domain = "https://orey.github.io/ai/"
+    Identifiable = URIRef(DOMAIN + "Identifiable")
     Token = URIRef(DOMAIN + "Token")
     Sequence = URIRef(DOMAIN + "Sequence")
     Rank = URIRef(DOMAIN + "Rank") # rank of sequence
-    
+    Punctuation = URIRef(DOMAIN + "Punctuation")
+    InstancesInDict = URIRef(DOMAIN + "InstancesInDict")
 
+    # Static method
+    def init_graph_grammar(graph):
+        '''
+        graph is a RDFStore (from tools)
+        '''
+        #=== Initialize the grammar
+        #--- Identifiable is the root of tokens and sequences
+        graph.add((Sem.Identifiable, RDFS.subClassOf, RDFS.Class))
+        #--- Token: ID or a "word"
+        graph.add((Sem.Token, RDFS.subClassOf, Sem.Identifiable))
+        #--- Sequence: list of tokens
+        graph.add((Sem.Sequence, RDFS.subClassOf, Sem.Identifiable))
+        graph.add((Sem.Sequence, RDFS.subClassOf, RDF.Seq)) # The _1, _2, etc. will be used
+        #--- Rank: The number of tokens of a sequence
+        graph.add((Sem.Rank, RDFS.subPropertyOf, RDF.Property))
+        graph.add((Sem.Rank, RDFS.domain, Sem.Sequence))
+        graph.add((Sem.Rank, RDFS.range, XSD.integer))
+        #--- Punctuation
+        graph.add((Sem.Punctuation, RDFS.subClassOf, RDFS.Token))
+        #--- InstancesInDict
+        graph.add((Sem.InstancesInDict, RDFS.subPropertyOf, RDF.Property))
+        graph.add((Sem.InstancesInDict, RDFS.domain, Sem.Sequence))
+        graph.add((Sem.InstancesInDict, RDFS.range, XSD.integer))
+        
+
+    
 #------------------------------------------------------------------SemDict
 class SemWordDict():
     '''
@@ -49,15 +78,9 @@ class SemWordDict():
         # create the graph
         self.name = name
         self.graph = RDFStore(name)
-        # initialize the types
-        self.graph.add((Sem.Token, RDFS.subClassOf, RDFS.Class))
-        self.graph.add((Sem.Sequence, RDFS.subClassOf, RDF.Seq)) # The _1, _2, etc. will be used
-        self.graph.add((Sem.Rank, RDFS.subPropertyOf, RDF.Property))
-        self.graph.add((Sem.Rank, RDFS.domain, Sem.Sequence))
-        self.graph.add((Sem.Rank, RDFS.range, XSD.integer))
+        # initialize the grammar
+        Sem.init_graph_grammar(self.graph)
         
-        
-
     def add_words(self, words, verbose = False):
         '''
         words : array of words
@@ -79,10 +102,15 @@ class SemWordDict():
                 self.count +=1
                 # adding the word in the graph
                 s = URIRef(Sem.Domain + rep)
+                # the value is always the same
+                self.graph.add((s, RDF.value, word))
+                # the type is not
                 if word in PUNCTUATION:
+                    self.graph.add((s, RDF.type, Sem.Punctuation))
+                else:
                     self.graph.add((s, RDF.type, Sem.Token))
-                    self.graph.add((s, RDF.value, word))
-                    # to be added, the number of instances could be added
+                # to be added, the number of instances could be added
+                # reprendre ici
         if verbose:
             print(self)
         return tokenized_words       
