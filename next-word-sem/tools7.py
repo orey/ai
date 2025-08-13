@@ -8,7 +8,7 @@ from difflib import SequenceMatcher
 import progressbar, unidecode
 import hashlib
 import shutil, inspect
-import rdflib
+from rdflib import Graph
 
 
 #---------------- In order to use in other files
@@ -30,7 +30,7 @@ import rdflib
 #- generateName: generate a timestamp before the filename
 #- myprint: logs in the console and in a file in the same move
 #- interrupt: my breakpoint
-#- breakpoint: a more elaborated version of interrupt
+#-> breakpoint: a more elaborated version of interrupt
 #- countLinesInCSVFile
 #- countLinesInFile
 #- Timer: encapsulate the timer in a class
@@ -39,6 +39,7 @@ import rdflib
 #- print_dict
 #- safe_copy: copy unless the target file exists
 #- my_tokenizer: personal tokenizer
+#- file_tokenizer
 
 
 #================================================= RDFStore
@@ -60,7 +61,8 @@ class RDFStore():
     def dump(self):
         myprint("Dumping store")
         tim = Timer()
-        self.store.serialize(self.name, format='turtle')
+        self.store.serialize(self.name if not self.name.endswith(".ttl") else self.name + ".ttl",
+                             format='turtle')
         tim.stop()
         myprint("Store dumped")
 
@@ -151,7 +153,7 @@ def safe_copy(source, target, verbose = False):
             return True
     else:
         if verbose: print(f"The file '{source}' was not found. Doing nothing.")
-        retrun False
+        return False
 
 
 
