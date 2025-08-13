@@ -2,7 +2,7 @@
 # Tools for the Finance data processing
 # O. Rey - July 2025
 ########################################################
-import csv, time, os, os.path
+import csv, time, os, os.path, sys
 from datetime import datetime
 from difflib import SequenceMatcher
 import progressbar, unidecode
@@ -40,6 +40,14 @@ from rdflib import Graph
 #- safe_copy: copy unless the target file exists
 #- my_tokenizer: personal tokenizer
 #- file_tokenizer
+#- RDF store
+#- imprint => immediate print to the console
+
+
+#================================================= imprint
+def imprint(t, end="\n"):
+    print(t, end=end)
+    sys.stdout.flush()
 
 
 #================================================= RDFStore
@@ -61,7 +69,8 @@ class RDFStore():
     def dump(self):
         myprint("Dumping store")
         tim = Timer()
-        self.store.serialize(self.name if not self.name.endswith(".ttl") else self.name + ".ttl",
+        filename = self.name if self.name.endswith(".ttl") else self.name + ".ttl"
+        self.store.serialize(filename,
                              format='turtle')
         tim.stop()
         myprint("Store dumped")

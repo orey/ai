@@ -10,7 +10,7 @@
 
 import sys
 sys.path.append('.')
-from tools7 import RDFStore, file_tokenizer
+from tools7 import RDFStore, file_tokenizer, imprint
 from rdflib import Literal, URIRef, RDF, RDFS, XSD
 
 
@@ -57,7 +57,7 @@ class Sem():
 
     
 #------------------------------------------------------------------SemDict
-class SemWordDict():
+class SemDict():
     '''
     SemWordDict keeps the old dict representation but creates on top
     a semantic graph
@@ -81,6 +81,7 @@ class SemWordDict():
         self.graph = RDFStore(name)
         # initialize the grammar
         Sem.init_graph_grammar(self.graph)
+
         
     def add_words(self, words, language="en", verbose=False):
         '''
@@ -88,7 +89,7 @@ class SemWordDict():
         returns the array of tokens corresponding to words
         '''
         tokenized_words = []
-        if verbose: print(f"Length of the array of tokens: {len(words)}")
+        if verbose: imprint(f"Length of the array of tokens: {len(words)}")
         for word in words:
             if word in self.dic:
                 # adding a new occurence
@@ -101,7 +102,7 @@ class SemWordDict():
                 s = URIRef(Sem.Domain + rep)
                 self.graph.remove((s, Sem.InstancesInDict, Literal(occ, datatype=XSD.integer)))
                 self.graph.add((s, Sem.InstancesInDict, Literal(occ+1, datatype=XSD.integer)))
-                if verbose: print("-",end="") #new occurence
+                #if verbose: imprint("-",end="") #new occurence
             else:
                 # adding the word in dic
                 rep = ("{:0"+ str(PADDING_SIZE)+"d}").format(self.count+1)
@@ -121,10 +122,19 @@ class SemWordDict():
                     self.graph.add((s, RDF.type, Sem.Token))
                 # this is the first instance
                 self.graph.add((s, Sem.InstancesInDict, Literal(1, datatype=XSD.integer)))
-                if verbose: print("n",end="") #new word
+                self.graph.add((s, Sem.Rank, Literal(1, datatype=XSD.integer)))
+                if verbose: imprint("n",end="") #new word
         if verbose:
-            print(f"\nDictionary containing {self.count} words and punctuation")
+            imprint(f"\nDictionary containing {self.count} words and punctuation")
         return tokenized_words
+
+    def add_sequences(self, before, after=None):
+        '''
+        Before and after are sequences that are linked together. The SemDict is not here
+        to calculate the sequences but to record them and their links.
+        '''
+        #for word in before:
+        return
 
     def dump(self):
         self.graph.dump()
@@ -133,7 +143,7 @@ class SemWordDict():
 #------------------------------------------------------------------main
 if __name__ == "__main__":
     words = file_tokenizer('./content/segond-clean.txt', True)
-    dic = SemWordDict("BibleSegond")
+    dic = SemDict("BibleSegond")
     tokens = dic.add_words(words, "fr", True)
     dic.dump()
 

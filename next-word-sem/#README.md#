@@ -2,7 +2,7 @@
 
 ## Design options
 
-See the semantic model in the `graphml` file.
+See the semantic model in the `graphml` file. The grammar of the graph is in the static class `Sem`.
 
 The objective is to feed a semantic graph with:
 
