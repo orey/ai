@@ -5,7 +5,7 @@
 import csv, time, os, os.path, sys
 from datetime import datetime
 from difflib import SequenceMatcher
-import progressbar, unidecode
+import progressbar2, unidecode
 import hashlib
 import shutil, inspect
 from rdflib import Graph
@@ -68,7 +68,7 @@ class RDFStore():
         self.store.remove(triple)
     def dump(self):
         myprint("Dumping store")
-        tim = Timer()
+        tim = Timer("Store dump")
         filename = self.name if self.name.endswith(".ttl") else self.name + ".ttl"
         self.store.serialize(filename,
                              format='turtle')
@@ -193,9 +193,9 @@ def footprint_sha1(filename):
 
 #---------------------------------------------ProgressBar
 class ProgressBar():
-    def __init__(self,nb):
-        self.nb = nb
-        self.bar = progressbar.ProgressBar(max_value=nb)
+    def __init__(self,mini,maxi):
+        self.nb = maxi
+        self.bar = progressbar2.ProgressBar(mini,maxi)
         self.count = 0
     def set(self, count):
         if count > self.nb:
@@ -304,15 +304,16 @@ def countLinesInFile(file):
 
 #============================================ Timer
 class Timer():
-    def __init__(self):
+    def __init__(self, name=""):
         self.start = time.time()
+        self.name = name
     def stop(self):
         self.stop = time.time()
-        print("\nTreatment duration: "
+        print("~~~ Treatment '" + self.name + "' duration: "
               + str((round(self.stop-self.start))//60)
               + " minutes and "
               + str((round(self.stop-self.start))%60)
-              + " seconds\n")
+              + " seconds")
 
 #-------------------------------find_in_disk
 def find_in_disk(pattern, path):
