@@ -3,26 +3,16 @@
 # O. Rey - August 2025
 ########################################################
 
-URI = "URI"
-BLANK_NODE   = "BLANK_NODE"
-TEXT_LITERAL = "TEXT_LITERAL"
-INT_LITERAL  = "INT_LITERAL"
-
-
-#====================================================================== Term
-class Term():
-    def __init__(self, namespace: str, value: str):
-        self.namespace = namespace
-        self.value = value
-        self.type = None
+import sys, time
+sys.path.append('.')
+from tools8 import mybreakpoint
 
 
 #====================================================================== URI
-class URI(Term):
+class URI():
     def __init__(self, namespace: str, value: str):
-        super().__init__(namespace, value)
-        super().type = URI
-        
+        self.namespace = namespace
+        self.value = value
 
     def to_str(self) -> str:
         return f"<{self.namespace}{self.value}>"
@@ -30,8 +20,8 @@ class URI(Term):
 #====================================================================== BlankNode
 class BlankNode():
     def __init__(self, namespace: str, value: str):
-        super().__init__(namespace, "_")
-        super().type = BLANK_NODE
+        self.namespace = namespace
+        self.value = value
         
     def to_str(self) -> str:
         return f"<{self.namespace}{self.value}>"
@@ -40,19 +30,18 @@ class BlankNode():
 #====================================================================== TextLiteral
 class TextLiteral():
     def __init__(self, namespace: str, value: str, language="en"):
-        super().__init__(namespace,value)
+        self.namespace = namespace
+        self.value = value
         self.language = language
-        super().type = TEXT_LITERAL        
 
     def to_str(self) -> str:
         return f"\"{self.value}\"@{self.language}"
 
 #====================================================================== IntLiteral
 class IntLiteral():
-    def __init__(self, namespace: str, value: str):
+    def __init__(self, namespace: str, value: int):
         self.namespace = namespace
         self.value = value
-        super().type = INT_LITERAL
         
     def to_str(self) -> str:
         return f"{self.value}"
@@ -84,7 +73,7 @@ class RDFDB():
         # creating aliases for unknown namespaces
         for n in namespaces:
             i += 1
-            self.namespace[n] = "ns" + i + ":"
+            self.namespaces[n] = f"ns{i}:"
         # DB is a tree (made with dicts) similar to turtle representation
         # { "ns1:s1" : { "ns2:p1" : {"ns3:o1" : 1, "ns3:o2" : 4, ...}, ... }, ...  }
         # Warning: the last dict contains the number of occurences found
@@ -101,28 +90,28 @@ class RDFDB():
         return urirep
         
         
-    def add(self, s, p, o, verbose) -> bool:
-        if type(s) in ["IntLiteral", "TextLiteral"]:
+    def add(self, s, p, o, verbose=False) -> bool:
+        if isinstance(s, IntLiteral) or isinstance(s, TextLiteral):
             print("Literal cannot be subject of a RDF triple")
             return False
-        if type(p) in ["IntLiteral", "TextLiteral"]:
+        if isinstance(p, IntLiteral) or isinstance(p, TextLiteral):
             print("Literal cannot be predicate of a RDF triple")
             return False
         # s should be a URI - the BlankNode case is not implemented
-        if type(s) != "URI":
+        if not isinstance(s,URI):
             print("Subject should be a URI")
             return False
-        if type(p) in  ["IntLiteral", "TextLiteral", "BlankNode"]:
+        if isinstance(p,IntLiteral) or isinstance(p, TextLiteral) or isinstance(p, BlankNode):
             print("Predicate should be a URI")
             return False
-        if type(o) == "BlankNode":
+        if isinstance(o, BlankNode):
             print("Object cannot be a BlankNode")
             return False
         # do we know the namespace?
-        sub = build_rep(s)
-        pred = build_rep(p)
+        sub = self.build_rep(s)
+        pred = self.build_rep(p)
         obj = ""
-        if type(o) == "URI":
+        if isinstance(o, URI):
             obj = build_rep(o)
         else:
             #Literal
@@ -144,17 +133,81 @@ class RDFDB():
     def dump(self):
         with open(self.name + ".ttl", "w", encoding="utf-8") as f:
             for n in self.namespaces:
-                f.write(f"@prefix {self.namespaces[n]} <{n}> .\n")
+                f.write(f"@prefix {self.namespaces[n]} <{n}> .\n\n")
             f.write("\n")
             str = ""
             for s in self.db:
-                str = s + 
-                for p in self.db[s]:
-                    for o in self.db[s][p]:
+                str = s
+                ps = list(self.db[s].keys()) # array of predicates
+                mybreakpoint(ps)
+                lenps = len(ps)
+                if lenps == 1:
+                    # we are on the line of the subject
+                    str += " " + ps[0] + str_for_objects( self.db[s][ps[0]], True)
+                else:
+                    for j in range(lenps):
+                        if j == 0:
+                            # we are on the line of the subject
+                            str += " " + ps[0] + str_for_objects( self.db[s][ps[0]], False)
+                        elif j == lenps-1:
+                            # we are on the last pred line and there were others before
+                            str += "    " + ps[j] + str_for_objects( self.db[s][ps[j]], True)
+                        else:
+                            str += "    " + ps[j] + str_for_objects( self.db[s][ps[j]], False)
+                f.write(str + "\n")
 
+                        
+def str_for_objects(dic, lastP=False):
+    '''
+    dic = {o1 : nb1, o2, nb2, ...}
+    '''
+    str = ""
+    keys = list(dic.keys())
+    # one object + we are on the line on the last predicate
+    if len(dic) == 1 and lastP:
+        return " " + dic[keys[0]] + " .\n"
+    # on bject + we are on the line on the predicate
+    if len(dic) == 1:
+        return " " + dic[keys[0]] + " ;\n"
+    for i in range(len(keys)):
+        if i == 0:
+            # we are on the line of the predicate
+            str += " " + dic[keys[0]] + " ,\n"
+        elif i == len(keys) -1:
+            # we are on the last line
+            if lastP:
+                str += "        " + dic[keys[i]] + " .\n"
+            else:
+                str += "        " + dic[keys[i]] + " ;\n"
+        else:
+            str += "        " + dic[keys[i]] + " ,\n"
+            
+
+
+
+def test():
+    '''
+    ns1:20506 a ns1:Word ;
+    rdf:value "chrysoprase"@fr ;
+    ns1:InstancesInDict 1 ;
+    ns1:Rank 1 .
+    '''
+    domain = "https://test.com/blurp#"
+    rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    db = RDFDB("test",[domain])
+    a = URI(domain,"20506")
+    mybreakpoint(isinstance(a, URI))
+    db.add(URI(domain,"20506"), URI(rdf, "value"), TextLiteral(domain, "chrysoprase", "fr"))
+    db.add(URI(domain,"20506"), URI(domain, "InstancesInDict"), IntLiteral(domain, 4))
+    db.add(URI(domain,"20506"), URI(domain, "InstancesInDict"), IntLiteral(domain, 2))
+    mybreakpoint(db.db)
+    db.dump()
+
+
+            
 
 if __name__ == "__main__":
-    test = URI("namespace", "/value")
-    toto = 
+    test()
+    
 
 
