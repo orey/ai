@@ -107,6 +107,8 @@ python next-word-sem-v2.py
 
 Nombre de triples dans Jena : 4 187 258. Mais ce chiffre est trompeur car le cas de test fait un scan 4, 3 du texte (4 mots avant liés avec des suites de 3 mots après). On pourrait juste prédire le mot suivant.
 
+Turtle validé par <https://github.com/IDLabResearch/TurtleValidator> et par Jena.
+
 ## TODO
 
 * Revoir le code de tokenization car problème sur les `"`.
