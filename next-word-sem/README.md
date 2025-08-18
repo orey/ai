@@ -44,7 +44,7 @@ SELECT ?target ?count WHERE {
 
 Scales well, doesn’t clutter the ontology with extra properties.
 
-## Impact on rdfdb
+### Impact on rdfdb
 
 The memory storage of rdfdb is mirroring this design:
 
@@ -97,3 +97,20 @@ _:stmt a rdf:Statement ;
        :count        4 .
 ```
 
+## Execution
+
+`BibleSegond.ttl` se charge correctement dans Jena. Le fichier n'est pas dans github mais peut être reconstitué en faisant:
+
+```
+python next-word-sem-v2.py
+```
+
+Nombre de triples dans Jena : 4 187 258. Mais ce chiffre est trompeur car le cas de test fait un scan 4, 3 du texte (4 mots avant liés avec des suites de 3 mots après). On pourrait juste prédire le mot suivant.
+
+## TODO
+
+* Revoir le code de tokenization car problème sur les `"`.
+* Protéger les classes IRI et Literal de RDFDB similairement à ce qui a été fait dans `csv2rdf`.
+* Implémenter le `count` en mode annotation rdf*. Cela servira pour l'algo de next word quand ce dernier tournera sur base de données Jena, car dans le cas de la base de données mémoire, aucun besoin de RDF\*..
+* Implémenter le générateur de texte. Dans un premier temps, il peut être basé sur les structures mémoire de la base. Dans un second temps, le faire sur la base.
+* Travailler la notion de dimension sémantique dans le cadre du choix de la suite. Les LLMs le font. Il faudrait loader un dictionnaire analogique dans le corpus et travailler sur base des dimensions sémantiques proposées.

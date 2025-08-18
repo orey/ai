@@ -29,7 +29,7 @@ class BlankNode():
 #====================================================================== TextLiteral
 class TextLiteral():
     def __init__(self, value: str, language="en"):
-        self.value = value
+        self.value = value.replace('"', "")
         self.language = language
 
     def __str__(self):

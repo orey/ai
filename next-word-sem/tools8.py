@@ -175,14 +175,14 @@ def file_tokenizer(f, keep_accents=False, verbose = False, removeFirstChar=True)
 REPLACE = [
     ("\n", " "),
     ("_" , " "),
-    ("”" , '"'),
+    ("”" , "'"), #warning: " is not acceptable as Literal in a triple
     ("‘" , "'"),
-    ("“" , '"'),
+    ("“" , "'"), #no "
     ("[" , "" ),
     ("]" , "" )
 ]
 
-ADD_SPACE_AROUND = [".",",",";",":","!","?","'",'"',"-","(",")","—"]
+ADD_SPACE_AROUND = [".",",",";",":","!","?","'","-","(",")","—"] #no "
 
 def my_tokenizer(text, keep_accents = False, verbose = False):
     '''
