@@ -1,6 +1,10 @@
 # Turtle files can be very big so I can't commit them in github
 *.ttl
 
+# Compilation in C
+*.o
+*.x
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
