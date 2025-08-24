@@ -3,19 +3,17 @@
   Author: rey.olivier@gmail.com
   Started: August 2025
  */
-#ifndef _STDINT_H
-  #include <stdint.h>
-#endif
-#ifndef _STDBOOL_H
-  #include <stdbool.h>
-#endif
+
+#include <stdint.h>
+#include <stdbool.h>
 
 #ifndef _MYTOOLS_H
 #define _MYTOOLS_H
 
 void mybreakpoint(char * str);
 
-int numberOfBytesInChar(unsigned char val);
+int numberOfBytesInChar(char * c);
+bool charEquals(char* a, char* b);
 
 bool is_utf8_continuation(uint8_t byte);
 

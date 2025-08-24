@@ -1,30 +1,61 @@
-/* This may look like nonsense, but really is -*- mode: C -*- */
+/*
+  AI
+  OR rey.olivier@gmail.com
+  August 2025
+ */
 
-#ifndef _STDLIB_H
-  #include <stdlib.h>
-#endif
-#ifndef _STDIO_H
-  #include <stdio.h>
-#endif
-#ifndef _STDBOOL_H
-  #include <stdbool.h>
-#endif
-#ifndef _CTYPE_H
-  #include <ctype.h>
-#endif
-#ifndef _STRING_H
-  #include <string.h>
-#endif
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <string.h>
+
+#include "mytools.h"
 
 
-#ifndef _MYTOOLS_H
-  #include "mytools.h"
-#endif
 
+
+
+typedef struct the_symbols {
+  char symbols[200][4]; //200 chars of 4 bytes each max
+  int len;
+} Symbols;
+
+// factory of Symbols
+Symbols * initSymbols(){
+  Symbols * symbs = (Symbols *) malloc(sizeof(Symbols));
+  symbs->len = 0;
+  return symbs;
+}
+
+void printSymbols(Symbols * symbs){
+  printf("%d symbols in the array of symbols\n[", symbs->len);
+  for (int i=0;i<(symbs->len);i++){
+    printf("'%s', ",symbs->symbols[i]);
+  }
+  printf("]\n");
+}
+
+/* ====================================================== addSymbolToSymbols*/
+void addSymbolToSymbols(Symbols * symbs, char * newsymb) {
+  for (int i=0;i<(symbs->len);i++){
+    if (charEquals(symbs->symbols[i],newsymb)){
+      //we have it already
+      return;
+    }
+  }
+  // it is a new symbol
+  strcpy(symbs->symbols[symbs->len], newsymb);
+  (symbs->len)++;
+  //printf("New symbol: '%s' --- Number of symbols: %d\n",newsymb,symbs->len);
+}
 
 
 /* ====================================================== parseFile*/
-size_t parseFile(char * filename) {
+size_t parseFile(char * filename, int threshold) {
+  //init the symbol table
+  Symbols* symbs = initSymbols();
+  //manage the file
   FILE *fptr = fopen(filename, "rb");
   if (fptr == NULL) {
     perror("Error opening file");
@@ -54,9 +85,11 @@ size_t parseFile(char * filename) {
       fread(&c[1], 1, 3, fptr);
       c[4] = '\0';
       }
-    // the c character is captured
-    /*printf("%d\n",(unsigned char) c[0]);
-      mybreakpoint(c);*/
+    // the 'c' character is captured
+    /*printf(">>> The char captured is\n");
+    mybreakpoint(c);
+    puts("calling addSymbolToSymbols <<<");*/
+    addSymbolToSymbols(symbs,c);
     if (c[0] == ' ') {
       //word is a complete word
       printf("%s | ", word);
@@ -68,11 +101,15 @@ size_t parseFile(char * filename) {
     }
     c[0] = '\0';
     // A enlever
-    if (count == 100) {
-      puts("End of test");
-      exit(0);
-    } 
+    if (threshold != 0) {
+      if (count == threshold) {
+        puts("End of test");
+        printSymbols(symbs);
+        exit(0);
+      }
+    }
   } //end of while
+  printSymbols(symbs);
   return count;
 }
 
@@ -101,7 +138,7 @@ int main(int argc, [[maybe_unused]] char* argv[argc+1]) {
 
   readUtf8File("segond-clean.txt");
   puts("=============================================");
-  parseFile("segond-clean.txt");
+  parseFile("segond-clean.txt", 1000);
     
   return 0;
 }

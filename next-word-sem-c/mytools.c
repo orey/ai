@@ -3,40 +3,70 @@
   Author: rey.olivier@gmail.com
   Started: August 2025
  */
-#ifndef _STDLIB_H
- #include <stdlib.h>
-#endif
-#ifndef _STDIO_H
-  #include <stdio.h>
-#endif
-#ifndef _STDINT_H
-  #include <stdint.h>
-#endif
-#ifndef _STDBOOL_H
-  #include <stdbool.h>
-#endif
-#ifndef _STRING_H
-  #include <string.h>
-#endif
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 
 
 #include "mytools.h"
 
 
+/* This function tales in charge multi-byte chars */
+bool charEquals(char* a, char* b){
+  //debug
+  /*char trace[100];
+  sprintf(trace, "%s - %s", a, b);
+  mybreakpoint(trace);*/
+  //end debug
+  int na = numberOfBytesInChar(a);
+  int nb = numberOfBytesInChar(b);
+  if (na != nb) return false;
+  switch(na){
+  case 1:
+    //ascii 7bits chars
+    if (a[0] == b[0]) return true;
+    else return false;
+  case 2:
+    if ((a[0] == b[0])
+        && (a[1] == b[1])) return true;
+    else return false;
+  case 3:
+    if ((a[0] == b[0])
+        && (a[1] == b[1])
+        && (a[2] == b[2]))
+      return true;
+    else return false;
+  case 4:
+    if ((a[0] == b[0])
+        && (a[1] == b[1])
+        && (a[2] == b[2])
+        && (a[3] == b[3]))
+      return true;
+    else return false;
+  default:
+    perror("This case should never happen.");
+    return false;
+  }
+}
+
 /* The first byte of a UTF-8 character
  * indicates how many bytes are in
  * the character, so only check that
  */
-int numberOfBytesInChar(unsigned char val) {
-    if (val < 128) {
-        return 1;
-    } else if (val < 224) {
-        return 2;
-    } else if (val < 240) {
-        return 3;
-    } else {
-        return 4;
-    }
+int numberOfBytesInChar(char * c) {
+  unsigned char val = c[0];
+  if (val < 128) {
+    return 1;
+  } else if (val < 224) {
+    return 2;
+  } else if (val < 240) {
+    return 3;
+  } else {
+    return 4;
+  }
 }
 
 /* ====================================================== mybreakpoint*/

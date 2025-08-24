@@ -10,7 +10,7 @@ TARGET_RELEASE := program.x
 TARGET_DEBUG   := program_debug.x
 
 # Default target builds release
-all: release debug
+all: release
 
 # Release build (optimized)
 release: CFLAGS += -O2
