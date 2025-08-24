@@ -14,6 +14,24 @@
 #include "mysymbols.h"
 
 
+typedef struct the_word {
+  char w[30]; //longest word anticonstitutionnellement 25 char
+  int n;
+} Word;
+
+typedef struct the_memory {
+  size_t size;
+  uchar * start;
+} Memory;
+
+
+Word ** createDict() {
+  Word ** temp = NULL;
+  return temp;
+}
+
+
+
 
 
 

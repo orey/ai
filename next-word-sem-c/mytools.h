@@ -11,8 +11,12 @@
 #ifndef _MYTOOLS_H
 #define _MYTOOLS_H
 
+
+typedef unsigned char uchar;
+
+
 /* ====================================================== timer type */
-   typedef struct timer_t {
+typedef struct timer_t {
   char name[30];
   time_t start;
   time_t stop;
