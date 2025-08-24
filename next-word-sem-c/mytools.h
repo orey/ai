@@ -10,6 +10,7 @@
 #ifndef _MYTOOLS_H
 #define _MYTOOLS_H
 
+void decodeArguments(int argc, char ** argv);
 void mybreakpoint(char * str);
 
 int numberOfBytesInChar(char * c);

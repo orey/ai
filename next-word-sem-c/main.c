@@ -131,8 +131,14 @@ int readUtf8File(char * filename) {
   return 0;
 }
 
+
+
+
+
 /* ====================================================== MAIN*/
-int main(int argc, [[maybe_unused]] char* argv[argc+1]) {
+int main(int argc, char** argv) {
+  decodeArguments(argc, argv);
+  
   printf("\nSize of int: %lu\n", sizeof(int));
   printf("Size of size_t: %lu\n", sizeof(size_t));
 

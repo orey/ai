@@ -14,6 +14,23 @@
 #include "mytools.h"
 
 
+
+void decodeArguments(int argc, char ** argv){
+  printf("argc = '%d'\n", argc);
+   if (argc > 1){
+     int len = sizeof(argv);
+     printf("argv = ");
+     for (int i = 0; i<len;i++){
+       printf("'%s', ",argv[i]);
+     }
+     printf("\n");
+   }
+   else
+     printf("No other arguments");
+}
+
+
+
 /* This function tales in charge multi-byte chars */
 bool charEquals(char* a, char* b){
   //debug
