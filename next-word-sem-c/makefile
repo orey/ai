@@ -1,8 +1,8 @@
 # Cross-platform Makefile for Linux and Cygwin
-# Uses GNU Make
+# Uses GNU Make >= 4.2
 
 CC      := gcc
-CFLAGS  := -Wall -Wextra -O2
+CFLAGS  := -Wall -Wextra
 OBJ     := main.o mytools.o mysymbols.o
 
 # Different targets for release and debug
@@ -23,7 +23,7 @@ debug: $(OBJ)
 	$(CC) $(CFLAGS) -o $(TARGET_DEBUG) $^
 
 # Compile .c into .o
-%.o: %.c tools.h
+%.o: %.c mytools.h mysymbols.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean build files
@@ -31,3 +31,4 @@ clean:
 	rm -f $(OBJ) $(TARGET_RELEASE) $(TARGET_DEBUG)
 
 .PHONY: all release debug clean
+
