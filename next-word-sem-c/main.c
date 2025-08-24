@@ -11,44 +11,11 @@
 #include <string.h>
 
 #include "mytools.h"
+#include "mysymbols.h"
 
 
 
 
-
-typedef struct the_symbols {
-  char symbols[200][4]; //200 chars of 4 bytes each max
-  int len;
-} Symbols;
-
-// factory of Symbols
-Symbols * initSymbols(){
-  Symbols * symbs = (Symbols *) malloc(sizeof(Symbols));
-  symbs->len = 0;
-  return symbs;
-}
-
-void printSymbols(Symbols * symbs){
-  printf("%d symbols in the array of symbols\n[", symbs->len);
-  for (int i=0;i<(symbs->len);i++){
-    printf("'%s', ",symbs->symbols[i]);
-  }
-  printf("]\n");
-}
-
-/* ====================================================== addSymbolToSymbols*/
-void addSymbolToSymbols(Symbols * symbs, char * newsymb) {
-  for (int i=0;i<(symbs->len);i++){
-    if (charEquals(symbs->symbols[i],newsymb)){
-      //we have it already
-      return;
-    }
-  }
-  // it is a new symbol
-  strcpy(symbs->symbols[symbs->len], newsymb);
-  (symbs->len)++;
-  //printf("New symbol: '%s' --- Number of symbols: %d\n",newsymb,symbs->len);
-}
 
 
 /* ====================================================== parseFile*/
@@ -61,8 +28,8 @@ size_t parseFile(char * filename, int threshold) {
     perror("Error opening file");
     return 1;
   }
-  char c[5] = {'\0'};
-  char word[50] = "";
+  char c[5] = {0};
+  char word[50] = {0};
   int count = 0;
   //((bytesRead = fread(buffer, 1, sizeof(buffer) - 1, filePointer)) > 0){
   int bytesRead = 0;
@@ -105,7 +72,7 @@ size_t parseFile(char * filename, int threshold) {
       if (count == threshold) {
         puts("End of test");
         printSymbols(symbs);
-        exit(0);
+        return count;
       }
     }
   } //end of while
@@ -144,7 +111,16 @@ int main(int argc, char** argv) {
 
   readUtf8File("segond-clean.txt");
   puts("=============================================");
-  parseFile("segond-clean.txt", 1000);
+
+  timer * tim = startTimer("01234567890123456789012345678901", true);
+  //parseFile("segond-clean.txt", 1000);
+  parseFile("segond-clean.txt", 0);
+  stopTimer(tim, true);
+  puts("END");
+
+
+
+    
     
   return 0;
 }

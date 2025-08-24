@@ -9,12 +9,65 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 
 
 #include "mytools.h"
 
 
+/* ====================================================== timer */
+timer * startTimer(char * name, bool verbose) {
+  timer * thetimer = (timer *) malloc(sizeof(timer));
+  thetimer->name[0] = '\0';
+  mystrncpy(thetimer->name, name, 30);
+  if (verbose)
+    printf("Timer '%s' started\n", thetimer->name);
+  time(&(thetimer->start));
+  return thetimer;
+}
 
+long stopTimer(timer * thetimer, bool verbose){
+  time(&(thetimer->stop));
+  thetimer->dif = difftime(thetimer->stop,thetimer->start);
+  if (verbose)
+    printf("Timer '%s' stoped\nTime spent: %.2lf seconds.\n",
+           thetimer->name,
+           thetimer->dif);
+  return thetimer->dif;
+}
+
+/* ====================================================== mystrncpy */
+  /* Same as strncpy but prevents overflow */
+void mystrncpy(char * target, char * source, int maxlen){
+  int l = strlen(source);
+  int themax = maxlen -1; // room for '\0'
+  printf("Source: %s\n",source);
+  printf("l = %d, themax=%d\n",l, themax);
+  if (themax >= l) {
+    // we assume source has a finishing '\0'
+    strcpy(target, source);
+  }
+  else {
+    strncpy(target, source, themax);
+    target[themax] = '\0';
+  }
+}
+
+void test_mystrncpy() {
+  char test[10];
+  char plus[] = "012345678901234"; //15
+  char moins[] = "01234";  //5
+  char pareil[] = "0123456789"; //10
+  mystrncpy(test, plus, 10);
+  printf("Plus: %s\n",test);
+  mystrncpy(test, moins, 10);
+  printf("Moins: %s\n",test);
+  mystrncpy(test, pareil, 10);
+  printf("Pareil: %s\n",test);
+}
+
+
+/* ====================================================== decodeArguments*/
 void decodeArguments(int argc, char ** argv){
   printf("argc = '%d'\n", argc);
    if (argc > 1){
@@ -30,7 +83,7 @@ void decodeArguments(int argc, char ** argv){
 }
 
 
-
+/* ====================================================== charEquals*/
 /* This function tales in charge multi-byte chars */
 bool charEquals(char* a, char* b){
   //debug
@@ -69,7 +122,8 @@ bool charEquals(char* a, char* b){
   }
 }
 
-/* The first byte of a UTF-8 character
+/* ======================================================
+ * The first byte of a UTF-8 character
  * indicates how many bytes are in
  * the character, so only check that
  */

@@ -3,7 +3,7 @@
 
 CC      := gcc
 CFLAGS  := -Wall -Wextra -O2
-OBJ     := main.o mytools.o
+OBJ     := main.o mytools.o mysymbols.o
 
 # Different targets for release and debug
 TARGET_RELEASE := program.x
