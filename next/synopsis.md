@@ -122,5 +122,39 @@ While no single paper outlines your exact system, the concepts are actively rese
 * **Conversational AI with Knowledge Graphs:** Research in this area often focuses on using KGs to ground chatbots in factual knowledge. The use of **reification** for memory and context is a growing sub-field. Look for terms like **"memory-augmented"** and **"knowledge-grounded"** conversational agents.
 * **Symbolic AI and NLP:** This is the broader field that your project falls into. It is a counter-point to the dominant statistical learning paradigm. There's a renewed interest in these methods for their **explainability** and **interpretability**.
 
+# Me
+
+concerning topological analysis, do you know if some works were done on a cloud approach. If I materialize a semantic field as a group of words with a certain distance - or "sub meaning" -, we could determine the common parts of semantic sets. Do you have some articles about semantic neighbor calculated based on points (subjects). We would be able to have the set intersection of neighborings and deduce multi dimensions meanings
+
+# Gemini
+
+Yes, research has been done on this topic, particularly in the context of cloud-based and distributed systems. The concepts you describe—defining semantic fields as groups of words with a certain topological distance, analyzing set intersections of their neighbors, and deriving multi-dimensional meanings—are a core part of modern research in **Knowledge Graph analytics**.
+
+---
+
+### **Cloud-Based and Distributed Topological Analysis**
+
+Working with massive knowledge graphs in the cloud is not just an academic exercise; it's a necessity. The scale of knowledge graphs like Wikidata or the Google Knowledge Graph makes single-server processing impractical. This has led to a body of work on **distributed graph processing frameworks** and **cloud-native knowledge graph databases**.
+
+* **Distributed Graph Processing:** Researchers have adapted classic graph algorithms for distributed environments. Frameworks like **Apache Spark's GraphX** and specialized graph databases like **Amazon Neptune** and **Microsoft Azure Cosmos DB** are designed to handle terabytes of graph data by partitioning it across multiple nodes in a cluster. This allows for scalable computation of metrics like shortest paths, centrality, and neighborhood analysis.
+* **Semantic Data Partitioning:** A key challenge in distributed graph processing is minimizing communication overhead between nodes. One approach is **semantic partitioning**, where related data (e.g., all triples about a specific subject) are grouped together on the same server. This is particularly relevant to your idea of "semantic fields," as you could partition the graph based on semantic clusters, ensuring that neighborhood analysis for a given subject can be done locally on a single machine, dramatically improving performance.
+
+---
+
+### **Semantic Neighborhoods and Multi-Dimensional Meanings**
+
+Your idea of calculating the intersection of semantic neighbors is a powerful one, and it's being actively explored in the field of **knowledge graph completion** and **semantic similarity**.
+
+* **Intersection Features for Link Prediction:** A recent line of research focuses on using the **intersection size of k-hop neighborhoods** as a feature for machine learning models. The principle is exactly what you've described: a valid, factual triple often has a greater overlap in the neighborhoods of its head, relation, and tail entities than an invalid one. This "intersection" can be used as a signal to predict missing links or infer new facts. For example, if you want to know what a `dog` `barks` at, you could look at the intersection of the neighbors of `dog` and `barks`. The entities that appear in both neighborhoods (e.g., `stranger`, `cat`) are the most likely candidates for the answer.
+* **Topological Data Analysis (TDA) for Semantic Spaces:** While more prevalent in analyzing geometric data like 3D point clouds, the principles of TDA are being applied to knowledge graphs. The idea is to understand the "shape" of the data. For instance, TDA can identify connected components, "holes," and cycles, which can correspond to specific semantic structures or even "contradictions" in the data. Your concept of a "semantic field" being a "sub-meaning" is analogous to a **topological feature** that can be mathematically identified and analyzed.
+* **Semantic Neighbor Calculation:** Calculating semantic neighbors is an active research area. One notable framework is **DistSim**, which provides a scalable, distributed framework for semantic similarity estimation on RDF graphs. It uses methods like **MinHash** to approximate set intersections and unions efficiently, allowing it to compute Jaccard similarity between the neighborhoods of entities on massive datasets without the need to hold the entire graph in memory. This directly addresses the problem you raised. 
+
+In essence, your proposal moves beyond basic link analysis and into the advanced territory of **distributed graph analytics** and **Topological Data Analysis**, which are exactly the areas where this kind of reasoning is being developed for large-scale, cloud-based applications.
+
+https://www.researchgate.net/publication/278243715_Topological_Analysis_of_Cloud_Service_Connectivity
+
+https://arxiv.org/abs/2404.06037#:~:text=Distributed%20processing%20of%20large%2Dscale,and%20algorithms%20have%20been%20proposed.
+
+https://arxiv.org/abs/2404.06037#:~:text=Applying%20graph%20tasks%20to%20distributed,%2C%20communication%20overhead%2C%20and%20bandwidth.
 
 
