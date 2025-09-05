@@ -20,7 +20,7 @@ The advantage of the solution is that it is predictable, it is enrichable with s
 
 I would like a review of literature connected to this topic, plus an analysis of the technical implications of this topic (I am developing it). So it can be quite detailed.
 
-##Deadline
+## Deadline
 
 Take your time.
 
