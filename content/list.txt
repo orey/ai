@@ -1,0 +1,16 @@
+list.txt
+Proust-1-DuCoteDeChezSwann.txt
+Proust-2-1-AL'OmbreDesJeunesFillesEnFleur.txt
+Proust-2-2-AL'OmbreDesJeunesFillesEnFleur.txt
+Proust-2-3-AL'OmbreDesJeunesFillesEnFleur.txt
+Proust-3-1-LeCoteDesGuermantes.txt
+Proust-3-2-LeCoteDesGuermantes.txt
+Proust-3-3-LeCoteDesGuermantes.txt
+Proust-4-1-SodomeEtGomorrhe.txt
+Proust-4-2-SodomeEtGomorrhe.txt
+Proust-5-LaPrisionniere.txt
+Proust-6-1-AlbertineDisparue.txt
+Proust-6-2-AlbertineDisparue.txt
+Proust-7-1-LeTempsRetrouve.txt
+Proust-7-2-LeTempsRetrouve.txt
+segond-clean.txt

@@ -9,7 +9,7 @@ import sys, time, random
 sys.path.append('.')
 
 
-from tools8 import file_tokenizer, myProgressBar, mybreakpoint
+from tools8 import file_tokenizer, myProgressBar, mybreakpoint, generateName
 
 
 def get_n_last(tex, n):
@@ -148,20 +148,17 @@ def feedSimpleGraph(g, words, befores, afters):
         before = ' '.join(words[i : i+befores])
         after = ' '.join(words[i+befores: i+befores+afters])
         g.add(before,after)
+    print("Graph contains " + '{:,}'.format(len(g.g)) + " entries")
 
 
-#------------------------------------------------------------------main        
-def test():
-    testfile = '../content/segond-clean.txt'
-    print(f"Tokenizing file '{testfile}'...")
-    words = file_tokenizer(testfile, True)
-    print("Done")
-    g = SimpleGraph("Dictionary")
-    feedSimpleGraph(g, words, 1, 1)
-    feedSimpleGraph(g, words, 2, 1)
-    feedSimpleGraph(g, words, 3, 1)
-    feedSimpleGraph(g, words, 4, 1)
-    #g.print()
+
+def load_and_prompt(name, files, windowlimit):
+    g = SimpleGraph(name)
+    for f in files:
+        print(f"Tokenizing file '{f}'...")
+        words = file_tokenizer(f, True)
+        for i in range(windowlimit):
+            feedSimpleGraph(g, words, i+1, 1)
     generatedtext = input("Provide a start phrase: ")
     while True:
         generatedtext += ' ' + g.next(generatedtext)
@@ -169,7 +166,35 @@ def test():
         stop = input("Next? ['n' terminates] ")
         if stop == 'n':
             break
-    print("Terminated")
+    outputfilename = generateName(name + ".txt")
+    with open(outputfilename, "w") as output:
+        output.write(generatedtext)
+        print(f"{outputfilename} file generated")
+
+
+#------------------------------------------------------------------main        
+def test():
+    #load_and_prompt("Segond",
+    #                ['../content/segond-clean.txt'],
+    #                4)
+    load_and_prompt("Proust",
+                    [
+                        "../content/Proust-1-DuCoteDeChezSwann.txt",
+                        "../content/Proust-2-1-AL'OmbreDesJeunesFillesEnFleur.txt",
+                        "../content/Proust-2-2-AL'OmbreDesJeunesFillesEnFleur.txt",
+                        "../content/Proust-2-3-AL'OmbreDesJeunesFillesEnFleur.txt",
+                        "../content/Proust-3-1-LeCoteDesGuermantes.txt",
+                        "../content/Proust-3-2-LeCoteDesGuermantes.txt",
+                        "../content/Proust-3-3-LeCoteDesGuermantes.txt",
+                        "../content/Proust-4-1-SodomeEtGomorrhe.txt",
+                        "../content/Proust-4-2-SodomeEtGomorrhe.txt",
+                        "../content/Proust-5-LaPrisionniere.txt",
+                        "../content/Proust-6-1-AlbertineDisparue.txt",
+                        "../content/Proust-6-2-AlbertineDisparue.txt",
+                        "../content/Proust-7-1-LeTempsRetrouve.txt",
+                        "../content/Proust-7-2-LeTempsRetrouve.txt"
+                    ],
+                    6)
 
     
 #------------------------------------------------------------------main
