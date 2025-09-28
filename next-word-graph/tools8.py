@@ -165,11 +165,15 @@ def file_tokenizer(f, keep_accents=False, verbose = False, removeFirstChar=True)
     '''
     More basic stuff but working quite well
     '''
-    with open(f) as g:
-        text = g.read()[(1 if removeFirstChar else 0):] #removing first char \ufeff
-        if verbose: print("Text read")
-        return my_tokenizer(text, keep_accents, verbose)
-
+    try:
+        with open(f) as g:
+            text = g.read()[(1 if removeFirstChar else 0):] #removing first char \ufeff
+            if verbose: print("Text read")
+            return my_tokenizer(text, keep_accents, verbose)
+    except FileNotFoundError:
+        print(f"File '{f}' not found. Exiting...")
+        sys.exit()
+        
         
 #-----------------------------------------------------------------------my_tokenizer
 REPLACE = [
@@ -208,7 +212,7 @@ def my_tokenizer(text, keep_accents = False, verbose = False):
 def mybreakpoint(obj=None):
     prefix = "Breakpoint"
     #print(inspect.stack()[0][3]) => breakpoint
-    print(f"{prefix} in {inspect.stack()[1][3]}")
+    print(f"{prefix} in '{inspect.stack()[1][3]}'")
     if obj: print(f"{prefix}: {obj}")
     a = input(f"{prefix}: Do you want to continue? ('n' will stop) ")
     if a == "n":
