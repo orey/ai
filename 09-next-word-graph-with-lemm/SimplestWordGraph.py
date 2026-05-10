@@ -11,7 +11,6 @@ class WordGraph:
         self.ids = {}             # label -> id
         self.ranks = defaultdict(int)
         self.edges = set()
-        self.types = {} # id -> [types]
 
     @staticmethod
     def _edge(a, b):
@@ -37,10 +36,6 @@ class WordGraph:
         self.labels[id] = label
 
         return id
-
-    def add_types_to_node(self, label, types):
-        id = self.ids.get(label)
-        self.types[id] = types        
 
     def add_edge(self, label_a, label_b):
         """
@@ -85,10 +80,10 @@ def testWordGraph():
     g.add_edge("dog", "pet")
 
     g.add_edge("animal", "cat")   # ignored (same edge)
-    g.add_node("cat",["noun"])    # ignored (already exists)
+    g.add_node("cat")    # ignored (already exists)
     
     print(g.top_ranks(10))
-    print(g)
+    #print(g)
     g.count()
 
 if __name__ == "__main__":

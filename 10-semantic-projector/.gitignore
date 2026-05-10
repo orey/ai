@@ -1,0 +1,9 @@
+# Ignore virtualenv internals
+__pycache__
+bin/
+include/
+lib/
+share/
+# symbolic link and not a folder
+lib64
+
