@@ -141,27 +141,6 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-#--- modif O. Rey - May 10 2026
-# Environments
-#.env
-#.envrc
-#.venv
-#env/
-#venv/
-#ENV/
-#env.bak/
-#venv.bak/
-
-# Ignore virtualenv internals
-#09-next-word-graph-with-lemm/bin/
-#09-next-word-graph-with-lemm/lib/
-#09-next-word-graph-with-lemm/lib64/
-#09-next-word-graph-with-lemm/include/
-#09-next-word-graph-with-lemm/__pycache__
-
-# Keep config files
-#!09-next-word-graph-with-lemm/pyvenv.cfg
-
 #--- end modif O. Rey - May 10 2026
 
 # PyPI configuration file
