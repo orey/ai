@@ -1,15 +1,15 @@
-
+import os
+import sys
+sys.path.append('.')
+from tools10 import interrupt
 
 MAX_CHAR = 4000
-DOCX_SAMPLE = ".\\data\\sample.docx.txt"
+
+DOCX_SAMPLE = ".\\data\\source.docx.txt"
+SOURCE = "C:\\c\\oreyboulot-NHI"
 
 
-
-
-
-
-
-
+#------------------------------------------------- chunk_text
 def chunk_text(text, max_chars=MAX_CHAR, overlap=1):
     paragraphs = [p.strip() for p in text.split("\n") if p.strip()]
 
@@ -34,17 +34,32 @@ def chunk_text(text, max_chars=MAX_CHAR, overlap=1):
     return chunks
 
 
+#------------------------------------------------- sample of complex loop
+def explore_and_chunk():
+     for root, dirs, files in os.walk(SOURCE):
+         for f in files:
+             if f.endswith(".docx.txt"):
+                 with open(os.path.join(root,f), "r", encoding="utf-8") as f:
+                     content = f.read()
+                     chunks = chunk_text(content, overlap=2)
+                     for c in chunks:
+                         print(f"--\n{c}\n")
+                     interrupt("end")
 
+                     
+#------------------------------------------------- simple_test
+def simple_test():
+    with open(DOCX_SAMPLE, "r", encoding="utf-8") as f:
+        content = f.read()
+        chunks = chunk_text(content, overlap=2)
+        for c in chunks:
+            print(f"--\n{c}\n")
 
-
+            
 #------------------------------------------------- main
 def main():
-    with open(DOCX, "r", encoding="utf-8") as f:
-        content = f.read()
-        
-            
-
-
+    simple_test()
+    explore_and_chunk()
 
 
 #================================================= entry point
