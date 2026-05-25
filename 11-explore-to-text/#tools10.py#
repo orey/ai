@@ -15,7 +15,7 @@ from toolsX import
 
 * string2md5 : returns a md5 of the string, can be used with other algorithms
 * footprint_sha256
-*  sha256_fingerprint, more elaborated version
+* sha256_fingerprint, more elaborated version
 * footprint_sha1
 * myProgressBar: encapsulates the progress bar in a convenient class
 * ErrorFile: encapsulate a file with a convenient name

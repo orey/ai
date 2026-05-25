@@ -1,7 +1,8 @@
-#----------------------------------------
-# Code to call the internal API with APIs
-# Adapated to Open-WebUI in May 2026
-#----------------------------------------
+'''
+This module proposes code to call the internal API with APIs
+Adapated to Open-WebUI in May 2026
+'''
+
 import sys
 from openai import OpenAI
 
@@ -68,6 +69,19 @@ class AI_Session:
 
         return response
 
+
+
+def clean_output(text):
+    out = ""
+    lines = text.split("\n")
+    injson = False
+    for l in lines:
+        if l.contains(assistant):
+            continue
+        
+        
+
+    
     
 #---------------------------------------------------------------------- Test
 def main(args):

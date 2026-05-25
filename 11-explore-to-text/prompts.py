@@ -17,17 +17,11 @@ Rules:
 - Merge lexical variants and synonyms.
 - Ignore filler vocabulary.
 - Maximum 15 keywords.
-- Score importance from 0 to 1.
 - Text is starting after $$$ and finishes before £££
 
 Format:
 {
-  "keywords": [
-    {
-      "term": "string",
-      "score": float
-    }
-  ]
+  "keywords": ["keyword1", "keyword2"]
 }
 
 Text:

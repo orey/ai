@@ -75,7 +75,7 @@ def treat_docx_file(session, rdfdb, namespace, f):
                 generate_keywords_prompt(c),
                 ""
             ]
-            response = session.ask(*params,streaming=False)
+            response = session.ask(*params,streaming=True)
             print(f"\n---\n{response}\n---\n")
             # 4. get the keywords and record them
             kw = json.loads(response)
