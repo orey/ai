@@ -150,7 +150,7 @@ def main(test=False):
 
 #============================================================entry point
 if __name__ == "__main__":
-    main(True)
+    main(False)
 
 
 
