@@ -11,34 +11,25 @@ from openai import OpenAI
 import httpx
 httpx_client = httpx.Client(http2=True, verify=False)
 
-# Supported models for the output
-QWEN3_6 = "Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf"
-
-
-#---------------------------------------------------------------------- Constants
-# Using the OpenAI API
-KEY = "y7TvhP6cDdX39kVYC24LmW" # not used
-API_BASE = "https://ai.partners.nhindustries.corp/v1/"
-
+from model_switcher import MODELS
 
 #---------------------------------------------------------------------- AI_Session
 class AI_Session:
     #--- constructor
-    def __init__(self, name):
+    def __init__(self, name, modelnumber):
+        '''
+        modelnumber is related to MODELS in model_switcher
+        '''
         self.name = name
+        self.modelnumber = modelnumber
         self.client = OpenAI(
             # defaults to os.environ.get("OPENAI_API_KEY")
-            api_key=KEY,
-            base_url=API_BASE,
+            api_key=MODELS[modelnumber]["key"],
+            base_url=MODELS[modelnumber]["api_base"],
             http_client=httpx_client # hack to avoid checking the SSL cert
         )
-        self.models = self.client.models.list()
         print(f"Session '{self.name}'\nModels:")
-        count = 0
-        for mod in self.models.data:
-            print(f"- Model index {count}: {mod.id}")
-            count += 1
-        self.model = self.models.data[0].id
+        self.model = MODELS[modelnumber]["model"]
         print(f"Working with {self.model}")
 
     #--- ask proposes a streaming mode or standard mode
@@ -49,9 +40,11 @@ class AI_Session:
             {"role": "assistant", "content":  assistp}  # the previous conversation
         ]
         chat_completion = self.client.chat.completions.create(
-            messages=messages,
-            model=self.model,
-            stream=streaming,
+            messages = messages,
+            model = self.model,
+            stream = streaming,
+            temperature = 0.1,
+            top_p = 0.8,
         )
         if verbose: print("-" * 50)
         if streaming:
@@ -69,38 +62,34 @@ class AI_Session:
             response = chat_completion.choices[0].message.content
             if verbose: print("Response: " + response)
         if verbose: print("-" * 50)
-
         return response
 
-
-#-----------------------------------------------------------
-def clean_output(model, text, verbose=False):
-    '''
-    Cleaning Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf output
-    '''
-    if model == QWEN3_6:
-        out = ""
-        lines = text.split("\n")
-        inreasoning = False
-        for l in lines:
-            if "assistant" in l:
-                continue
-            if "<think>" in l:
-                inreasoning = True
-                continue
-            if "</think>" in l:
-                inreasoning = False
-                continue
-            if inreasoning:
-                continue
-            if l.strip() == "":
-                continue
-            out += l
-        if verbose: print(f"Output was cleaned:\n{out}")
-        return out
-    else:
-        print(f"Warning: model {model} may not be supported")
-        return text
+    #---------- clean_output
+    def clean_output(self, text, verbose=False):
+        if self.modelnumber == 0:
+            if verbose: print(f"Using {self.name} rules")
+            out = ""
+            lines = text.split("\n")
+            inreasoning = False
+            for l in lines:
+                if "assistant" in l:
+                    continue
+                if "<think>" in l:
+                    inreasoning = True
+                    continue
+                if "</think>" in l:
+                    inreasoning = False
+                    continue
+                if inreasoning:
+                    continue
+                if l.strip() == "":
+                    continue
+                out += l
+            if verbose: print(f"Output was cleaned:\n{out}")
+            return out
+        else:
+            print(f"Warning: model {model} may not be supported")
+            return text
     
     
 #---------------------------------------------------------------------- Test

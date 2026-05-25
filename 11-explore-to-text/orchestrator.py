@@ -19,10 +19,10 @@ from tools10 import interrupt, sha256_fingerprint, ensureFile, footprint_sha1
 
 from chunker import chunk_text
 from prompts import generate_keywords_prompt
-from openai_api_server import AI_Session, QWEN3_6, clean_output
+from openai_api_server import AI_Session
 from rdfdb import RDFDB, IRI, format_IRI_name, TextLiteral, RDF
 
-MODEL = QWEN3_6
+from model_switcher import MODELS
 
 #--------------------------------- constants
 SOURCE = "C:\\c\\oreyboulot-NHI"
@@ -95,10 +95,11 @@ def treat_file(session, namespace, f):
             # 4. get the keywords and record them
             clean = ""
             try:
-                clean = clean_output(MODEL, response)
+                clean = session.clean_output(response)
                 kw = json.loads(clean)
-            except JSONDecodeError as e:
+            except Exception as e:
                 print(f"Error in JSON decoding for file {f}, chunk number {count}")
+                print(e)
                 interrupt(clean)
                 continue
             for k in kw["keywords"]:
@@ -127,7 +128,8 @@ def treat_file(session, namespace, f):
 
 #-------------------------------------------------------- main
 def main(test=False):
-    session = AI_Session("test")
+    modelnumber = 0
+    session = AI_Session("test", modelnumber)
     count = 0
     end = False
     for root, dirs, files in os.walk(SOURCE):
