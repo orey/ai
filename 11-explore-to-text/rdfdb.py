@@ -30,7 +30,7 @@ def format_IRI_name(pred):
                  "=", "%"]:
             new += '_'
         else:
-            new += pred[i]
+            new += pred[i].lower()
     return new
 
 
@@ -60,8 +60,12 @@ class TextLiteral():
         self.language = language
 
     def __str__(self):
-        return f'"{self.value}"@{self.language}'
+        if self.language != "":
+            return f'"{self.value}"@{self.language}'
+        else:
+            return f'"{self.value}"'
 
+            
 #====================================================================== IntLiteral
 class IntLiteral():
     def __init__(self, value: int):

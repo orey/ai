@@ -71,7 +71,7 @@ def treat_file(session, namespace, f):
     rdfdb.add(
         fingerprint,
         INDEX.fingerprint_of,
-        TextLiteral(justfile)
+        TextLiteral(justfile,"")
     )
     
     with open(os.path.join(f), "r", encoding="utf-8") as thefile:
@@ -119,7 +119,7 @@ def treat_file(session, namespace, f):
         rdfdb.add(
             IRI(NS, format_IRI_name(k)),
             RDF.value,
-            TextLiteral(k)
+            TextLiteral(k,"")
         )
     rdfdb.dump(extension="")
     print(f"TTL file generated: {dbfilename}")
