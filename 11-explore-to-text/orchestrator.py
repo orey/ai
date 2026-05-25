@@ -18,8 +18,10 @@ sys.path.append('.')
 from tools10 import interrupt, sha256_fingerprint
 from chunker import chunk_text
 from prompts import generate_keywords_prompt
-from openai_api_server import AI_Session
+from openai_api_server import AI_Session, QWEN3_6, clean_output
 from rdfdb import RDFDB, IRI, format_IRI_name, TextLiteral, RDF
+
+MODEL = QWEN3_6
 
 #--------------------------------- constants
 SOURCE = "C:\\c\\oreyboulot-NHI"
@@ -40,15 +42,16 @@ class INDEX:
     
 
 #------------------------------------------------------------ treat_docx_file
-def treat_docx_file(session, rdfdb, namespace, f):
+def treat_file(session, rdfdb, namespace, f):
     '''
     A file has several chunks
     f is the full name of the file
     '''
     # defining the keywords for the document
     keywords = {} # keyword, nb of time it appears
-    if not f.endswith(".docx.txt"):
+    if not f.endswith(".txt"):
         return False
+    print(f"Processing file: {f}")
     fingerprint = IRI(NS,sha256_fingerprint(f))
     rdfdb.add(
         fingerprint,
@@ -67,18 +70,28 @@ def treat_docx_file(session, rdfdb, namespace, f):
         content = thefile.read()
         # 2. Chunk it
         chunks = chunk_text(content, overlap=2)
+        count = 0
+        print("--- Chunks: ", end="", flush=True)
         for c in chunks:
-            print(f"\n---\n{c}\n---\n")
+            count += 1
+            print(str(count) + ", ", end="", flush=True)
             # 3. ask the LLM
             params = [
                 "You are a helpful assistant, always answering in json format.",
                 generate_keywords_prompt(c),
                 ""
             ]
-            response = session.ask(*params,streaming=False)
-            print(f"\n---\n{response}\n---\n")
+            response = session.ask(*params, streaming=False, verbose=False)
+            #print(f"\n---\n{response}\n---\n")
             # 4. get the keywords and record them
-            kw = json.loads(response)
+            clean = ""
+            try:
+                clean = clean_output(MODEL, response)
+                kw = json.loads(clean)
+            except JSONDecodeError as e:
+                print(f"Error in JSON decoding for file {f}, chunk number {count}")
+                interrupt(clean)
+                continue
             for k in kw["keywords"]:
                 if k not in keywords:
                     keywords[k] = 1
@@ -87,17 +100,17 @@ def treat_docx_file(session, rdfdb, namespace, f):
                     keywords[k] += 1
     # 5. We have the keywords for the document
     #$$$
-    interrupt(keywords)
+    print("\n--- Adding keywords to the semantic database")
     for k in keywords:
         rdfdb.add(
             IRI(NS, format_IRI_name(k)),
-            keyword_in,
+            INDEX.keyword_in,
             fingerprint
         )
     
             
 #-------------------------------------------------------- main
-def main():
+def main(test=False):
     rdfdb = RDFDB("test",[NS])
     session = AI_Session("test")
     count = 0
@@ -106,32 +119,23 @@ def main():
         if end:
             break
         for f in files:
-            if f.endswith(".docx.txt"):
+            if f.endswith(".txt"):
                 count += 1
-                treat_docx_file(
+                treat_file(
                     session,
                     rdfdb,
                     NS,
                     os.path.join(root,f)
                 )
-                if count >= TEST_LIMIT:
+                if test and count >= TEST_LIMIT:
                     end = True
                     break
     db.dump()
-            
-
-
-
-
-
-
-
-
 
 
 #============================================================entry point
 if __name__ == "__main__":
-    main()
+    main(True)
 
 
 

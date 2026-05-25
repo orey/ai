@@ -11,6 +11,9 @@ from openai import OpenAI
 import httpx
 httpx_client = httpx.Client(http2=True, verify=False)
 
+# Supported models for the output
+QWEN3_6 = "Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf"
+
 
 #---------------------------------------------------------------------- Constants
 # Using the OpenAI API
@@ -39,7 +42,7 @@ class AI_Session:
         print(f"Working with {self.model}")
 
     #--- ask proposes a streaming mode or standard mode
-    def ask(self, systemp, userp, assistp, streaming=False):
+    def ask(self, systemp, userp, assistp, streaming=False, verbose=False):
         messages = [
             {"role": "system",    "content": systemp}, # the system prompt
             {"role": "user",      "content":  userp},   # the user question
@@ -50,7 +53,7 @@ class AI_Session:
             model=self.model,
             stream=streaming,
         )
-        print("-" * 50)
+        if verbose: print("-" * 50)
         if streaming:
             response = ""
             # Iterate through the chunks and print tokens progressively
@@ -59,28 +62,45 @@ class AI_Session:
                 if chunk.choices[0].delta.content is not None:
                     content = chunk.choices[0].delta.content
                     response += content
-                    print(content, end="", flush=True)  # Print without newline, buffer immediately
-            print("\n")  # Add a final newline after completion
+                    if verbose: print(content, end="", flush=True)  # Print without newline, buffer immediately
+            if verbose: print("\n")  # Add a final newline after completion
         else:
-            print(chat_completion)
+            if verbose: print(chat_completion)
             response = chat_completion.choices[0].message.content
-            print("Response: " + response)
-        print("-" * 50)
+            if verbose: print("Response: " + response)
+        if verbose: print("-" * 50)
 
         return response
 
 
-
-def clean_output(text):
-    out = ""
-    lines = text.split("\n")
-    injson = False
-    for l in lines:
-        if l.contains(assistant):
-            continue
-        
-        
-
+#-----------------------------------------------------------
+def clean_output(model, text, verbose=False):
+    '''
+    Cleaning Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf output
+    '''
+    if model == QWEN3_6:
+        out = ""
+        lines = text.split("\n")
+        inreasoning = False
+        for l in lines:
+            if "assistant" in l:
+                continue
+            if "<think>" in l:
+                inreasoning = True
+                continue
+            if "</think>" in l:
+                inreasoning = False
+                continue
+            if inreasoning:
+                continue
+            if l.strip() == "":
+                continue
+            out += l
+        if verbose: print(f"Output was cleaned:\n{out}")
+        return out
+    else:
+        print(f"Warning: model {model} may not be supported")
+        return text
     
     
 #---------------------------------------------------------------------- Test
