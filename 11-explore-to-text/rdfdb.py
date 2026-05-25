@@ -4,6 +4,15 @@ This module propose a light RDF Turtle DB for AI tests
 * Author: O. Rey - August 2025, rey.olivier@gmail.com
 * Modified May 2026
 
+Items to import:
+
+- format_IRI_name
+- IRI
+- BlankNode
+- TextLiteral
+- IntLiteral
+
+
 '''
 
 import sys, time
@@ -115,14 +124,15 @@ class RDFDB():
         # sb contains only aliases of namespaces unless the namespace has no alias
         self.db = {}
 
-
+        
+    #----------  get_domain_alias
     def get_domain_alias(self, iri):
         if not iri.namespace in self.namespaces:
             self.index += 1
             self.namespaces[iri.namespace] = f"ns{self.index}:"
         return self.namespaces[iri.namespace]
         
-
+    #---------- add
     def add(self, s, p, o, verbose=False) -> bool:
         if isinstance(s, IntLiteral) or isinstance(s, TextLiteral):
             print("Literal cannot be subject of a RDF triple")
@@ -164,7 +174,7 @@ class RDFDB():
             self.db[sub] = {pred : {obj : 1}}
         return True
 
-    
+    #---------- remove
     def remove(self, s, p, o, verbose=False) -> bool:
         if not s.namespace in self.namespaces:
             print(f"Subject namespace '{s.namespace}' unknown in RDFDB")
@@ -206,13 +216,10 @@ class RDFDB():
                 #there are several predicates attached to the same subject
                 del self.db[key1][key2]
                 return True
-        
-        
-        
 
-        
-    def dump(self):
-        with open(self.name + ".ttl", "w", encoding="utf-8") as f:
+    #---------- dump
+    def dump(self, extension=".ttl"):
+        with open(self.name + extension, "w", encoding="utf-8") as f:
             for n in self.namespaces:
                 f.write(f"@prefix {self.namespaces[n]} <{n}> .\n")
             f.write("\n")
@@ -236,10 +243,11 @@ class RDFDB():
                             stri += "    " + ps[j] + str_for_objects( self.db[s][ps[j]], False)
                 f.write(stri + "\n")
 
-                        
+
+#---------------------------------------------------------- str_for_objects
 def str_for_objects(dic, lastP=False):
     '''
-    dic = {o1 : nb1, o2, nb2, ...}
+    dic = {o1 : nb1, o2: nb2, ...}
     '''
     stri = ""
     keys = list(dic.keys())
@@ -265,7 +273,7 @@ def str_for_objects(dic, lastP=False):
             
 
 
-
+#---------------------------------------------------------- test
 def test():
     '''
     ns1:20506 a ns1:Word ;
@@ -300,9 +308,8 @@ def test():
     db.add(IRI("http://test-namespace.com/","79797"), IRI(namespace, "LooksAt"), IRI(namespace, "TOTO"))
     db.dump()
 
-
             
-
+#---------------------------------------------------------- entry point
 if __name__ == "__main__":
     test()
     

@@ -15,7 +15,8 @@ import json, os
 import sys
 sys.path.append('.')
 
-from tools10 import interrupt, sha256_fingerprint
+from tools10 import interrupt, sha256_fingerprint, ensureFile, footprint_sha1
+
 from chunker import chunk_text
 from prompts import generate_keywords_prompt
 from openai_api_server import AI_Session, QWEN3_6, clean_output
@@ -42,7 +43,7 @@ class INDEX:
     
 
 #------------------------------------------------------------ treat_docx_file
-def treat_file(session, rdfdb, namespace, f):
+def treat_file(session, namespace, f):
     '''
     A file has several chunks
     f is the full name of the file
@@ -51,8 +52,16 @@ def treat_file(session, rdfdb, namespace, f):
     keywords = {} # keyword, nb of time it appears
     if not f.endswith(".txt"):
         return False
+    dbfilename = f.replace(".txt",".ttl")
+    if ensureFile(dbfilename):
+        print(f"File already exists : {dbfilename}")
+        return True
     print(f"Processing file: {f}")
-    fingerprint = IRI(NS,sha256_fingerprint(f))
+    #fingerprint = IRI(NS,sha256_fingerprint(f))
+    # going simpler and faster
+    fingerprint = IRI(NS,footprint_sha1(f))
+    # when the db will be dumped, a .ttl extension will be added
+    rdfdb = RDFDB(dbfilename,[namespace])
     rdfdb.add(
         fingerprint,
         RDF.type,
@@ -107,11 +116,17 @@ def treat_file(session, rdfdb, namespace, f):
             INDEX.keyword_in,
             fingerprint
         )
+        rdfdb.add(
+            IRI(NS, format_IRI_name(k)),
+            RDF.value,
+            TextLiteral(k)
+        )
+    rdfdb.dump(extension="")
+    print(f"TTL file generated: {dbfilename}")
     
-            
+
 #-------------------------------------------------------- main
 def main(test=False):
-    rdfdb = RDFDB("test",[NS])
     session = AI_Session("test")
     count = 0
     end = False
@@ -123,7 +138,6 @@ def main(test=False):
                 count += 1
                 treat_file(
                     session,
-                    rdfdb,
                     NS,
                     os.path.join(root,f)
                 )
