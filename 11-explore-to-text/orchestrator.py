@@ -146,7 +146,6 @@ def main(test=False):
                 if test and count >= TEST_LIMIT:
                     end = True
                     break
-    db.dump()
 
 
 #============================================================entry point
