@@ -13,12 +13,13 @@ from tools10 import CSV_trace, interrupt, create_text_file, generateName, Timer,
 from manage_docx import get_document_text, treat_text_with_contents
 
 
-SOURCE = "C:\\Users\\a876246\\Documents\\" # ends with \
-TARGET = "C:\\c\\" # ends with \
+#SOURCE = "C:\\Users\\a876246\\Documents\\" # ends with \
+#TARGET = "C:\\c\\" # ends with \
 
-ROOT = "oreyboulot-NHI" # Root folder will be added to source and target
+SOURCE = "C:\\cs\\"
+TARGET = "C:\\ct\\"
 
-LIBREOFFICE = "LibreOfficePortable"
+ROOT = "c" # Root folder will be added to source and target
 
 #---------------------------------------------------------- Global traces
 TRACE_HEADER = ["SOURCE_FILE_NAME","TARGET_FILE_NAME","STATUS"]
