@@ -1,12 +1,17 @@
 '''
 This module extracts text from PDF.
 '''
+from pypdf import PdfReader
+
+import sys
+sys.path.append('.')
+from tools10 import myprint
+
+NB_OF_MEANINGFUL_CHARS = 20
 
 
 
-
-
-#---------------------------------------------------------- analyze_pdf
+#---------------------------------------------------------- get_text_from_standard_pdf
 def get_text_from_standard_pdf(source_file, verbose=False) -> str:
     """
     Analyze a PDF to determine if it has extractable text or is image-only.
@@ -26,7 +31,7 @@ def get_text_from_standard_pdf(source_file, verbose=False) -> str:
         return False
 
     # If any non-whitespace text is found, consider it a standard PDF
-    if len(text.strip())<2:
+    if len(text.strip())< NB_OF_MEANINGFUL_CHARS:
         myprint(f"| PDF  | No text found (image PDF?) | {source_file}", verbose)
         return False
     else:
