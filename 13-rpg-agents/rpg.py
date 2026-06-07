@@ -7,6 +7,7 @@ import sys
 sys.path.append('.')
 from ollama_connector import ask_llm
 from pcs import ROLE_JOE, ROLE_ALICE, BACKGROUND_CONAN, BACKROUND_SARTIA
+from tools10 import Timer, interrupt
 
 #-------------------------------------------------- Rules
 RULES = '''# Rules of the table top roleplaying game
@@ -107,8 +108,8 @@ class Player:
         print(self.context)
         globcontext = "\n".join(self.context) + '\n' + input_text
         response = ask_llm(self.role, globcontext)
-        if response.contains("check"):
-            print(f"Acheck was required by {self.name}: {response}")
+        if "check" in response:
+            print(f"A check was required by {self.name}: {response}")
             # simulate the check
             globcontext += "True"
             response = ask_llm(self.role, globcontext)
@@ -133,10 +134,12 @@ def run_game():
     msg = "GM says: You are in the small town of Roudza. You heard that Hexel Flunk has a piece of clue about where could be the first lieutenant of General Chronos. What do you do?"
 
     exchanges.append(msg)
-    print(msg)
+    print("\n-----\n" + msg)
     stop = False
     while not stop:
+        t = Timer("test")
         response = joe.receive_gm_input(msg)
+        t.stop()
         a = input(response)
         
 #-------------------------------------------------- test

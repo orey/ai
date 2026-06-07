@@ -2,9 +2,9 @@
 Players
 ---------------------'''
 
-ROLE_JOE = "You are a player named Joe. You are playing a TTRPG with the game master (GM) and another player named Alice."
+ROLE_JOE = "You are a player named Joe. You are playing a TTRPG with the game master (GM) and another player named Alice. Your character name is Conan"
 
-ROLE_ALICE = "You are a player named Alice. You are playing a TTRPG with the game master (GM) and another player named Joe."
+ROLE_ALICE = "You are a player named Alice. You are playing a TTRPG with the game master (GM) and another player named Joe. Your character name is Sartia."
 
 
 '''---------------------
