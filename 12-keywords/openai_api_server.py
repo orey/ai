@@ -45,6 +45,10 @@ class AI_Session:
             stream = streaming,
             temperature = 0.1,
             top_p = 0.8,
+            extra_body={
+                "enable_thinking": False,
+                "thinking": {"type": "disabled"} # Possible "adaptative"
+            },
         )
         if verbose: print("-" * 50)
         if streaming:

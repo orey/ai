@@ -9,8 +9,13 @@ from openpyxl import load_workbook
 
 import sys
 sys.path.append('.')
+
 from tools10 import CSV_trace, interrupt, create_text_file, generateName, Timer, is_zip, myprint, ensureFile
+
 from manage_docx import get_document_text, treat_text_with_contents
+
+from manage_xlsx import treat_xlsx_tabs
+FORMAT = ";" # or "MD", "," or "|"
 
 
 #SOURCE = "C:\\Users\\a876246\\Documents\\" # ends with \
@@ -42,10 +47,6 @@ XLSX_NOT_READABLE = "XLSX not readable"
 TEMP = generateName()
 FILES_OK = CSV_trace(TEMP + "files_ok.csv")
 FILES_OK.add(TRACE_HEADER)
-
-# Some spreadsheets have worksheets with a number of rows that is superior
-# to this limit. We decided to cap to ROWS_LIMIT
-ROWS_LIMIT = 5000
 
 # one column, no header
 NOT_OK_FILENAME = "files_not_ok.csv"
@@ -189,7 +190,25 @@ def treat_docx(source_file, target_file, verbose=False):
         FILES_NOT_OK.add([source_file])
         return False
 
-    
+#--------------------------------------------------------------- treat_xlsx_and_record_result
+def treat_xlsx(source_file,  #completefilename
+               target_file,  #completefilename
+               format="MD",  # or ",",";" or "|"
+               verbose=False) -> bool:
+    sheets_status = treat_xlsx_tabs(source_file,
+                                    target_file,
+                                    format,
+                                    verbose)
+    if sheets_status == False:
+        return False
+    if all(sheets_status.values()):
+        FILES_OK.add([source_file, target_file, XLSX_TEXT_EXTRACTED])
+        return True
+    else:
+        FILES_NOT_OK.add([source_file])
+        return False
+
+
 #---------------------------------------------------------- treat_pptx
 def treat_pptx(source_file, target_file, verbose=False):
     """
@@ -220,71 +239,6 @@ def treat_pptx(source_file, target_file, verbose=False):
         FILES_NOT_OK.add([source_file])
         return False
 
-
-#---------------------------------------------------------- extract xlsx
-def treat_xlsx(source_file, target_file, verbose=False):
-    '''
-    This method keeps all the empty lines.
-    I don't know what it gives on merges cells.
-    It can probably extract the pricing lists quite efficiently
-    '''
-    try:
-        if not is_zip(source_file):
-            myprint(f"| XLSX | Not a Zip | File {source_file}")
-            FILES_NOT_OK.add([source_file])
-            return False
-        wb = load_workbook(source_file, read_only=True, data_only=True)
-        sheets_status = {} # { sheet_name, True/False }
-
-        for sheet_name in wb.sheetnames:
-            # see if we have already processed the sheet
-            target = target_file.replace(".xlsx","") + "_()_" + sheet_name + ".xlsx.txt"
-            if ensureFile(target):
-                myprint(f"| XLSX | File already processed: {target}")
-                continue
-            text = ""
-            ws = wb[sheet_name]
-            #text += f"Sheet named '{sheet_name}' content hereafter:\n\n"
-
-            myprint(f"| XLSX | ()=> Sheet: '{sheet_name}' with rows/columns = {ws.max_row}/{ws.max_column}", verbose)
-            if ws.max_row > ROWS_LIMIT:
-                myprint(f"| XSLX | ()=> Sheet: '{sheet_name}' too large. Only {ROWS_LIMIT} rows will be processed", verbose)
-            # main loop on rows
-            countrows = 0
-            for row in ws.iter_rows():
-                countrows += 1
-                if countrows > ROWS_LIMIT:
-                    myprint(f"| XLSX | === Sheet: '{sheet_name}' too large. We have processed the {ROWS_LIMIT} rows only", verbose)
-                    break
-                if verbose:
-                    print(".", end="", flush=True)
-                row_data = []
-                for cell in row:
-                    # Skip empty cells if needed
-                    value = cell.value if cell.value is not None else ""
-                    row_data.append(str(value))
-
-                # Process each row (myprint, save, etc.)
-                #myprint(row_data)
-                text += "| " + " | ".join(row_data) + ' |' + '\n'
-            print("")
-            #creating one file per spreadsheet
-            if create_text_file(target, text, verbose=verbose, prefix="| XLSX | "):
-                myprint(f"| XLSX | ()=> File for {sheet_name} created: {target}")
-                sheets_status[sheet_name] = True
-            else:
-                sheets_status[sheet_name] = False
-        wb.close()
-
-        if all(sheets_status.values()):
-            FILES_OK.add([source_file, target_file, XLSX_TEXT_EXTRACTED])
-            return True
-        else:
-            FILES_NOT_OK.add([source_file])
-            return False
-    except Exception as e:
-        myprint(e)
-        return ""
 
 
 #---------------------------------------------------------- main
@@ -324,7 +278,12 @@ def main():
     } # per {extension : extension}
     for root, dirs, files in os.walk(SOURCE + ROOT):
         for file_name in files:
+            if file_name.startswith("~$"):
+                myprint(f"| TEMP | Temp file found: {file_name}. Skipping.")
+                continue
             thefile = os.path.join(root, file_name)
+            if len(thefile) > 150:
+                thefile = f"\\\\?\\{thefile}"
             if thefile in errorfiles:
                 # it is already in the error files, we can skip the treatment
                 continue
@@ -375,14 +334,12 @@ def main():
             #--- XLSX
             elif extension.upper() == "XLSX":
                 count['xlsx'] += 1
-                if os.path.exists(target_file_name + ".txt"):
-                    myprint(f"| XLSX | File already processed: {target_file_name}")
-                    FILES_OK.add([thefile, target_file_name, FILE_ALREADY_PROCESSED])
-                else:
-                    # no extension is given for target file because we have
-                    # one file per sheet.
-                    treat_xlsx(thefile, target_file_name, verbose= True)
-                    #interrupt(f"Look at {target_file_name}")
+                # no extension is given for target file because we have
+                # one file per sheet with extension md or csv.
+                treat_xlsx(thefile,
+                           target_file_name,
+                           FORMAT,
+                           verbose= True)
             #--- everything else
             else:
                 if extension in count:

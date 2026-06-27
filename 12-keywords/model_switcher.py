@@ -1,4 +1,12 @@
 MODELS = [
+    # Link to OpenWebUI
+    {
+        "modelname": "nhindustries-ai-fast",
+        "model": "nhindustries-ai-fast",
+        "api_base": "https://ai.partners.nhindustries.corp/api/",
+        "key": "sk-353e1462b3fc497186aa7a16b336dbfe"
+    },
+    # Link to llama.cpp
     {
         "modelname": "QWEN3_6",
         "model": "Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf",
